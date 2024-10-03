@@ -11,8 +11,8 @@ contract SaveERC20 {
     error NotOwner();
     error CantSendToZeroAddress();
 
-    address tokenAddress;
-    address _owner;
+    address public tokenAddress;
+    address  public _owner;
 
     constructor (address _tokenAddress){
         _owner = msg.sender;
