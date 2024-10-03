@@ -85,13 +85,13 @@ contract StakeERC20 {
     }
 
     function totalStake() external view returns(uint256){
-        if(msg.sender != owner){revert NotOwner();}
+       
         if(msg.sender == address(0)){revert AddressZeroDetected();}
         return totalStaked;
     }
 
     function checkUserStake (address _user) external view returns(uint256){
-        if(msg.sender != owner){revert NotOwner();}
+       
         if(msg.sender == address(0)){revert AddressZeroDetected();}
         if(stakers[_user].isStaked == false){
             return 0;
