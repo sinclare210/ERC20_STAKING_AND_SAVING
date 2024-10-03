@@ -19,10 +19,12 @@ contract SaveERC20 {
         tokenAddress = _tokenAddress;
     }
 
-    mapping (address => uint256) balance;
+    mapping (address => uint256) public balance;
     event withdrawalSuccessful (address indexed user, uint256 indexed amount);
     event depositSuccessful (address indexed user, uint256 indexed amount);
     event depositForAnotherUserSuccesful  (address indexed sender,address indexed user, uint256 indexed amount);
+    event transerFundsSuccess(uint256 indexed amount,address indexed  _to);
+    event withdrawSuccess(uint256 indexed amount,address indexed  _to);
 
     function deposit (uint256 amount) external{
         if(msg.sender == address(0)){revert AddressZeroDetected();}
@@ -56,6 +58,7 @@ contract SaveERC20 {
         if(amount <= 0) {revert CantSendZero();}
         balance[msg.sender] -= amount;
         IERC20(tokenAddress).transfer(msg.sender, amount);
+        emit withdrawSuccess (amount,msg.sender);
     }
 
     function transerFunds(uint256 amount, address _to) external{
@@ -66,6 +69,8 @@ contract SaveERC20 {
         balance[msg.sender] -= amount;
 
         IERC20(tokenAddress).transfer(_to, amount);
+        emit transerFundsSuccess(amount, _to);
+        
     }
 
     function depositForAnotherUser(uint256 amount, address _to) external{
@@ -80,6 +85,8 @@ contract SaveERC20 {
         balance[_to] += amount;
 
         emit depositForAnotherUserSuccesful(msg.sender, _to, amount);
+
+        
 
 
 
