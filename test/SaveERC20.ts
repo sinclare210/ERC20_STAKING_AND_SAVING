@@ -4,7 +4,7 @@ import {
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
-import hre from "hardhat";
+import hre, { ethers } from "hardhat";
 import { token } from "../typechain-types/@openzeppelin/contracts";
 
 describe("SaveERC20", function () {
@@ -54,17 +54,47 @@ async function deploySaveERC20() {
       
     });
 
-    it("Should receive and store the funds to lock", async function () {
-    
-     
-
-     
-    });
-
-    // it("Should fail if the unlockTime is not in the future", async function () {
-      
-    // });
+ 
   });
+
+  describe ("deposit", function (){
+      it("should deposit correctly", async function () {
+         const {saveERC20, owner,otherAccount, token} = await loadFixture(deploySaveERC20);
+          
+          const trfAmount = ethers.parseUnits("100", 18)
+          await token.transfer(otherAccount,trfAmount);
+          expect (await token.balanceOf(otherAccount)).to.equal(trfAmount)
+
+
+          const depAmount = ethers.parseUnits("10", 18)
+
+          await token.connect(otherAccount).approve(saveERC20, trfAmount);
+
+          await (saveERC20.connect(otherAccount).deposit(depAmount))
+          expect (await saveERC20.connect(otherAccount).myBalance()).to.equal(depAmount);
+          expect (await saveERC20.contractBalance()).to.equal(depAmount);
+          
+          
+
+      });
+
+      it("revert when sending zero", async function () {
+          const {owner,otherAccount,token,saveERC20} = await loadFixture(deploySaveERC20);
+
+          const trfAmount = ethers.parseUnits("100", 18)
+          await token.transfer(otherAccount,trfAmount);
+          expect (await token.balanceOf(otherAccount)).to.equal(trfAmount)
+
+
+          const depAmount = ethers.parseUnits("0", 18)
+
+          await token.connect(otherAccount).approve(saveERC20, trfAmount);
+
+          await expect (saveERC20.connect(otherAccount).deposit(depAmount)).to.be.revertedWithCustomError(saveERC20, "CantSendZero");
+      });
+
+      it
+  })
 
 
 });
