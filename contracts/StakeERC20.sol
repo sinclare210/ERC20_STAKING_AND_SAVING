@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT LICENSE
-pragma solidity ^0.8.27;
+pragma solidity 0.8.27;
 
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -28,6 +28,9 @@ contract StakeERC20 {
 
     mapping (address => Stake) stakers;
 
+    event StakeSuccessful (address indexed user, uint256 indexed amount, uint256 indexed period);
+    event withdrawSuccessful (address indexed user, uint256 indexed amount);
+
     constructor (address _tokenAddress){
         tokenAddress = _tokenAddress;
         owner = msg.sender;
@@ -43,6 +46,7 @@ contract StakeERC20 {
         totalStaked += amount;
         
         stakers[msg.sender] = Stake(true,amount,block.timestamp + _periodInDays * 1 days,block.timestamp);
+        emit StakeSuccessful(msg.sender, amount, block.timestamp + _periodInDays * 1 days);
     }
 
     function withdraw() external {
@@ -58,6 +62,7 @@ contract StakeERC20 {
         stakers[msg.sender].isStaked = false;
 
         IERC20(tokenAddress).transfer(msg.sender, amount);
+        emit withdrawSuccessful(msg.sender, amount);
     }
 
     function emergencyWithdraw () external {
@@ -73,6 +78,7 @@ contract StakeERC20 {
 
 
         IERC20(tokenAddress).transfer(msg.sender, amount);
+        emit withdrawSuccessful(msg.sender, amount);
 
     }
 
