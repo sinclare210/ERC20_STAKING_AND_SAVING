@@ -80,7 +80,7 @@ contract StakeERC20 {
         if (stakers[msg.sender].isStaked == false){revert NotStaked();}
         uint256 stakingDuration = stakers[msg.sender].startTime - stakers[msg.sender].startTime;
         uint256 rewardRatePerSecond = 1; 
-        return stakingDuration * rewardRatePerSecond * stakers[msg.sender].amount;
+        return stakingDuration * rewardRatePerSecond;
 
     }
 
