@@ -57,7 +57,7 @@ async function deploySaveERC20() {
  
   });
 
-  describe ("deposit", function (){
+  describe ("Stake", function (){
       it("should deposit correctly", async function () {
          const {saveERC20, owner,otherAccount, token} = await loadFixture(deploySaveERC20);
           

@@ -16,8 +16,8 @@ contract StakeERC20 {
     error AlreadyStaked();
     
     uint256 totalStaked;
-    address tokenAddress;
-    address owner;
+    address public tokenAddress;
+    address public owner;
 
     struct Stake{
         bool isStaked;
