@@ -269,11 +269,40 @@ async function deployStakeERC20() {
       expect(userBalanceAfter).to.equal(rewardAmount + depAmount + amoutaferSake); // User should have received their staked amount + rewards
       console.log(rewardAmount + depAmount + amoutaferSake)
     });
-
-
-    
-  
-
  
+  });
+
+  describe("emergencyWithdraw", function () {
+    it("should revert if user didnt stake or is unstake", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+       const depAmount = ethers.parseUnits("4",18)
+
+      //  await  (stakeERC20.connect(otherAccount).stake(1,depAmount))
+       await expect ( stakeERC20.connect(otherAccount).emergencyWithdraw()).to.be.revertedWithCustomError(stakeERC20, "AlreadyWithdrawn")
+
+    });
+     it("should send the user the it right amount", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+       const depAmount = ethers.parseUnits("4",18)
+
+       await  (stakeERC20.connect(otherAccount).stake(1,depAmount))
+       await  ( stakeERC20.connect(otherAccount).emergencyWithdraw())
+         expect( await token.balanceOf(otherAccount)).to.equal(trfAmount)
+
+    });
   });
 });
