@@ -176,13 +176,100 @@ async function deployStakeERC20() {
      
       await ethers.provider.send("evm_increaseTime", [duration]);
       await ethers.provider.send("evm_mine");
-      const expecTedReturn = duration * 2;
+      const expecTedReturn = duration ;
    
       expect ( await  stakeERC20.connect(otherAccount).calcReward()).to.be.equal(expecTedReturn)
 
 
 
     });
+
+    
+  
+
+ 
+  });
+
+
+  describe("withdraw", function () {
+    it("should revert when time is not reached", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+       const depAmount = ethers.parseUnits("4",18)
+
+       await  (stakeERC20.connect(otherAccount).stake(1,depAmount))
+       await expect ( stakeERC20.connect(otherAccount).withdraw()).to.be.revertedWithCustomError(stakeERC20, "TimeNotReached")
+
+    });
+
+    it("should revert already withdraw if user stake is false", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+       const depAmount = ethers.parseUnits("4",18)
+
+       await expect ( stakeERC20.connect(otherAccount).withdraw()).to.be.revertedWithCustomError(stakeERC20, "AlreadyWithdrawn")
+
+    });
+
+    
+        it("should emit withdraw successful", async function () {
+      const { stakeERC20, owner, token, otherAccount } = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10", 18);
+      await token.transfer(otherAccount, trfAmount);
+       await token.transfer(owner, trfAmount);
+      expect(await token.balanceOf(otherAccount)).to.equal(trfAmount);
+
+      await token.connect(otherAccount).approve(stakeERC20, trfAmount);
+       await token.approve(stakeERC20, trfAmount);
+      const wdepAmount = ethers.parseUnits("4", 18);
+       const depAmount = ethers.parseUnits("2", 18);
+
+      await stakeERC20.connect(otherAccount).stake(1, depAmount);
+      await stakeERC20.stake(1, wdepAmount);
+      const amoutaferSake = await token.connect(otherAccount).balanceOf(otherAccount);
+
+    //simulate time
+      const duration = 60 * 1 * 60 * 24;
+      await ethers.provider.send("evm_increaseTime", [duration]);
+      await ethers.provider.send("evm_mine");
+
+      // Before withdrawal, check the contract's balance
+      const contractBalanceBefore = await token.balanceOf(stakeERC20);
+      expect(contractBalanceBefore).to.be.equal(depAmount + wdepAmount);
+      console.log(contractBalanceBefore)
+
+      // Withdraw and check for event emission
+      const rewardAmount = await stakeERC20.calcReward(); // Calculate the reward
+      await expect(stakeERC20.connect(otherAccount).withdraw())
+        .to.emit(stakeERC20, "withdrawSuccessful")
+        
+
+      // Check balances after withdrawal
+      const contractBalanceAfter = await token.balanceOf(stakeERC20);
+      const userBalanceAfter = await token.balanceOf(otherAccount);
+      console.log(contractBalanceAfter)
+      console.log(userBalanceAfter)
+
+      // Ensure the contract balance has decreased by the withdrawn amount
+      expect(contractBalanceAfter).to.equal((depAmount + wdepAmount) - (rewardAmount + depAmount));
+      
+      expect(userBalanceAfter).to.equal(rewardAmount + depAmount + amoutaferSake); // User should have received their staked amount + rewards
+      console.log(rewardAmount + depAmount + amoutaferSake)
+    });
+
 
     
   

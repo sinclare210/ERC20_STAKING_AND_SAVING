@@ -85,7 +85,7 @@ contract StakeERC20 {
     function calcReward () public view returns(uint256){
         if (stakers[msg.sender].isStaked == false){revert NotStaked();}
         uint256 stakingDuration = stakers[msg.sender].period - stakers[msg.sender].startTime;
-        uint256 rewardRatePerSecond = 2; 
+        uint256 rewardRatePerSecond = 1; 
         return stakingDuration * rewardRatePerSecond;
 
     }
