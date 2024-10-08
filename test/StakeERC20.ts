@@ -87,6 +87,137 @@ async function deployStakeERC20() {
 
     });
 
+     it("cant restake if curent stake is active", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const depAmount = ethers.parseUnits("4",18)
+
+     await ( stakeERC20.connect(otherAccount).stake(1,depAmount))
+     await expect (stakeERC20.connect(otherAccount).stake(1,depAmount)).to.be.revertedWithCustomError(stakeERC20,"AlreadyStaked");
+
+    });
+
+    it("should emit successfully", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const depAmount = ethers.parseUnits("4",18)
+
+     
+     await expect (stakeERC20.connect(otherAccount).stake(1,depAmount)).to.emit(stakeERC20,"StakeSuccessful");
+
+    });
+
+    it("should correctly increase total staked", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const depAmount = ethers.parseUnits("4",18)
+
+     
+     await expect (stakeERC20.connect(otherAccount).stake(1,depAmount)).to.emit(stakeERC20,"StakeSuccessful");
+           expect (stakeERC20.connect(otherAccount).totalStake).to.be.equal(depAmount);
+    });
+
+  
+
+ 
+  });
+
+  describe("stake", function () {
+    it("cant send zero", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+
+     await expect ( stakeERC20.connect(otherAccount).stake(1,0)).to.be.revertedWithCustomError(stakeERC20,"CantSendZero")
+
+    });
+
+    it("cant send more than balance", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const trAmount = ethers.parseUnits("11",18)
+
+     await expect ( stakeERC20.connect(otherAccount).stake(1,trAmount)).to.be.revertedWithCustomError(stakeERC20,"InsufficientFunds")
+
+    });
+
+     it("cant restake if curent stake is active", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const depAmount = ethers.parseUnits("4",18)
+
+     await ( stakeERC20.connect(otherAccount).stake(1,depAmount))
+     await expect (stakeERC20.connect(otherAccount).stake(1,depAmount)).to.be.revertedWithCustomError(stakeERC20,"AlreadyStaked");
+
+    });
+
+    it("should emit successfully", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const depAmount = ethers.parseUnits("4",18)
+
+     
+     await expect (stakeERC20.connect(otherAccount).stake(1,depAmount)).to.emit(stakeERC20,"StakeSuccessful");
+
+    });
+
+    it("should correctly increase total staked", async function () {
+      
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const depAmount = ethers.parseUnits("4",18)
+
+     
+     await expect (stakeERC20.connect(otherAccount).stake(1,depAmount)).to.emit(stakeERC20,"StakeSuccessful");
+           expect (stakeERC20.connect(otherAccount).totalStake).to.be.equal(depAmount);
+    });
+
   
 
  
