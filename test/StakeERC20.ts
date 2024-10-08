@@ -58,21 +58,36 @@ async function deployStakeERC20() {
   });
 
    describe("stake", function () {
-    it("Should set the right owner", async function () {
+    it("cant send zero", async function () {
       
-       const {stakeERC20, owner} = await loadFixture(deployStakeERC20);
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
 
-      expect (await stakeERC20.owner()).to.equal(owner)
-      
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+
+     await expect ( stakeERC20.connect(otherAccount).stake(1,0)).to.be.revertedWithCustomError(stakeERC20,"CantSendZero")
+
     });
 
-    it("Should set the right token", async function () {
-
-        const {stakeERC20, owner,token} = await loadFixture(deployStakeERC20);
-
-        expect (await stakeERC20.tokenAddress()).to.equal(token);
+    it("cant send more than balance", async function () {
       
+       const {stakeERC20, owner,token,otherAccount} = await loadFixture(deployStakeERC20);
+
+      const trfAmount = ethers.parseUnits("10",18)
+      await token.transfer(otherAccount,trfAmount);
+      expect (await token.balanceOf(otherAccount)).to.be.equal(trfAmount)
+
+      await token.connect(otherAccount).approve(stakeERC20,trfAmount);
+      const trAmount = ethers.parseUnits("11",18)
+
+     await expect ( stakeERC20.connect(otherAccount).stake(1,trAmount)).to.be.revertedWithCustomError(stakeERC20,"InsufficientFunds")
+
     });
+
+  
 
  
   });
